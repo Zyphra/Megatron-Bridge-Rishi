@@ -253,6 +253,7 @@ class Gemma3SelfAttention(SelfAttention):
         key_value_states: Optional[Tensor] = None,
         inference_context: Optional[BaseInferenceContext] = None,
         rotary_pos_emb: Optional[Union[Tensor, Tuple[Tensor, Tensor]]] = None,
+        rotary_pos_cos_sin: Optional[Tensor] = None,
         rotary_pos_cos: Optional[Tensor] = None,
         rotary_pos_sin: Optional[Tensor] = None,
         attention_bias: Optional[Tensor] = None,
@@ -261,6 +262,7 @@ class Gemma3SelfAttention(SelfAttention):
         *,
         inference_params: Optional[BaseInferenceContext] = None,
     ) -> Tuple[Tensor, Tensor]:
+        print(">>> EXECUTING Gemma3SelfAttention.forward from gemma3_provider.py <<<")
         """Switch to either local or global rope embedding before forward"""
         assert isinstance(rotary_pos_emb, tuple)
         assert rotary_pos_cos is None and rotary_pos_sin is None
@@ -408,3 +410,5 @@ class TERowParallelLinearLayerNorm(TERowParallelLinear):
         """Forward with additional Post LN on output"""
         output, bias = super().forward(x)
         return self.post_layernorm(output), bias
+
+
