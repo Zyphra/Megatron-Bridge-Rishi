@@ -150,7 +150,12 @@ echo "Current node: $current_node. Current rank: $current_rank. Master node: $ma
 NODE_RANK=$current_rank
 export MASTER_ADDR=${name2ip[$master_node]}
 export MASTER_PORT=$MASTER_PORT
+
+export WANDB_API_KEY=6f0443d34d41df289b878635a247d89381c06271
+
 WORLD_SIZE=$(($GPUS_PER_NODE*$NNODES))
+
+
 
 DISTRIBUTED_ARGS="
     --nproc_per_node $GPUS_PER_NODE \
@@ -169,7 +174,8 @@ CHECKPOINT_PATH="/checkpoints/gemmasbd" # Example path
 DATA_PATH="/datasets/processed_gemma3/consolidated/zyda/train_text_document" # Path PREFX for your .bin/.idx files
 LOG_DIR="/logs/my_gemma3_diffusion_run" # Example log directory
 RUN_NAME="gemma3_1b_diffusion_test"
-
+WANDB_PROJECT="sbdgemma_discrete" # From old script
+WANDB_SAVE_DIR="/logs/$RUN_NAME" # From old script
 mkdir -p $LOG_DIR
 
 # --- Megatron-Bridge Configuration Overrides (Hydra/OmegaConf Style) ---
@@ -179,8 +185,8 @@ MBRIDGE_ARGS=(
     # Training Loop
     checkpoint.pretrained_checkpoint="/checkpoints/gemmasbd"
     train.train_iters=1000 # Short test run
-    train.eval_interval=10
-    train.eval_iters=10
+    train.eval_interval=1000000000000
+    train.eval_iters=0
     model.seq_length=2048
     dataset.sequence_length=2048
     # Checkpointing
@@ -199,7 +205,7 @@ MBRIDGE_ARGS=(
     # Dataset
     #dataset.data_path=$DATA_PATH
     #+dataset.data_path=$DATA_PATH
-    # Batch Size (Keep small for single node test)
+    # Size (Keep small for single node test)
     train.micro_batch_size=1
     train.global_batch_size=8 # GBS = MBS * DP = 1 * 8 (since TP=1, PP=1)
 
@@ -208,6 +214,11 @@ MBRIDGE_ARGS=(
 
     # Logging
     logger.log_interval=1 # Log every step for debugging
+
+    # --- WANDB ARGS (New Hydra format) ---
+    logger.wandb_project=$WANDB_PROJECT
+    logger.wandb_exp_name=$RUN_NAME
+    logger.wandb_save_dir=$WANDB_SAVE_DIR
 )
 
 

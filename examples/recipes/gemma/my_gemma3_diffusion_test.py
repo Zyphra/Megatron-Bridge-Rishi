@@ -35,6 +35,7 @@ import torch
 from omegaconf import OmegaConf
 
 from megatron.bridge.recipes.gemma import gemma3_1b_pretrain_config
+from megatron.bridge.recipes.qwen import qwen3_600m_pretrain_config
 from megatron.bridge.training.finetune import finetune
 from megatron.bridge.training.config import ConfigContainer
 from megatron.bridge.training.utils.omegaconf_utils import (
@@ -66,7 +67,10 @@ if __name__ == "__main__":
     # 1. Get base config, PASSING data_path if provided
     initial_data_paths_list = [known_args.initial_data_path] if known_args.initial_data_path else None
 
-    config: ConfigContainer = gemma3_1b_pretrain_config(
+    #config: ConfigContainer = gemma3_1b_pretrain_config(
+    ##    data_paths=initial_data_paths_list # Pass it here
+    #)
+    config: ConfigContainer = qwen3_600m_pretrain_config(
         data_paths=initial_data_paths_list # Pass it here
     )
 
